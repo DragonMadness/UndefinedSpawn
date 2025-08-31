@@ -61,6 +61,7 @@ public class PlayerCommand extends ConfiguredCommand {
                     target,
                     "messages.spawn.not-enough-food"
             );
+            return;
         }
 
         Teleportation teleportation = teleportationManager.getLastTeleportation(target.getName());
@@ -100,9 +101,9 @@ public class PlayerCommand extends ConfiguredCommand {
                                         .formatted(timeout - i)))
                 );
                 try {
-                    Thread.currentThread().sleep(1000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.severe(e.getMessage());
                     task.cancel();
                     return;
                 }
@@ -133,7 +134,7 @@ public class PlayerCommand extends ConfiguredCommand {
                 player.setSaturation(Math.max(saturation - hungerCost, 0));
                 hungerCost = Math.max(hungerCost - saturation, 0);
                 int foodLevel = player.getFoodLevel();
-                player.setFoodLevel(Math.max(foodLevel - hungerCost, 2));
+                player.setFoodLevel(Math.max(foodLevel - hungerCost, Math.min(player.getFoodLevel(), 2)));
             }
 
             teleportationTasks.remove(player);
