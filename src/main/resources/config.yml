@@ -1,0 +1,40 @@
+main:
+  spawnpoint:
+    set-world-spawn: true
+  teleport:
+    cooldown: 600 # seconds
+    timeout: 3
+    hunger-cost:
+      enabled:
+        spawn: true
+        back: true
+      relation: LINEAR # LINEAR, SQRT, SQUARED
+      multiplier: 0.6
+
+messages:
+  prefix: "&5[&dU&aS&5]&r "
+  common:
+    not-player: "&cКоманда предназначена только для игроков!"
+    unknown-command: "&cТакой команды не существует!"
+    insufficient-args: "&cНедостаточно аргументов для команды!"
+    insufficient-perms: "&cНедостаточно прав для выполнения этой команды!"
+    teleportation-countdown: "&5Телепортация через &a%d..."
+    on-cool-down: "&cТы недавно телепортировался. Варп-двигатель перезаряжается. ETA: %s"
+    teleportation-in-progress: "&cУже телепортируем тебя, поздняк метаться!"
+  spawn:
+    not-enough-food: "&cПохоже что у тебя недостаточно еды для такого путешествия. Найди чего-нибудь поесть."
+    success:
+      - "&5Не подглядывать~"
+  back:
+    no-origin: "&cТы ещё не телепортировался на спавн. Некуда возвращаться."
+    already-returned: "&cТы уже возращался с последнего похода на спавн."
+    success:
+      - "&6Country roads, take me home..."
+  set-spawn:
+    success: "&5Спавнпоинт &aустановлен ✓"
+    new-spawn-point: "&5Новый спавнпоинт: %s %s %s (%s : %s)"
+  main-command:
+    help: "&5    - /undefinedspawn reload - перезагрузит конфигурацию плагина"
+    reload:
+      success: "&5Перезагрузка &aуспешно проведена ✓"
+      fail: "&cПроизошла ошибка при перезагрузке конфига, проверь консоль."

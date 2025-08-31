@@ -1,0 +1,23 @@
+{
+    "teleportations": [
+        {
+            "playerName": "DragonMadness_",
+            "time": 19200000,
+            "returned": false,
+            "origin": {
+              "world": "world",
+              "x": 10.0,
+              "y": 10.0,
+              "z": 10.0
+            }
+        }
+    ],
+    "spawn": {
+        "origin": {
+          "world": "world",
+          "x": 10.0,
+          "y": 10.0,
+          "z": 10.0
+        }
+    }
+}

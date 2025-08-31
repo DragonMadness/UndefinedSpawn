@@ -1,0 +1,18 @@
+name: UndefinedSpawn
+version: '1.0'
+main: com.github.dragonmadness.undefinedSpawn.UndefinedSpawn
+api-version: '1.21'
+author: DragonMadness_
+commands:
+  setspawn:
+    usage: /setspawn
+    description: "Sets the spawnpoint used by the plugin"
+  undefinedspawn:
+    usage: /undefinedspawn
+    description: "Command for admin plugin management"
+  spawn:
+    usage: /spawn
+    description: "Teleports player to admin-set spawn"
+  back:
+    usage: /back
+    description: "Teleports player back to their original spot before /spawn"
