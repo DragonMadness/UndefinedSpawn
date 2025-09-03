@@ -1,0 +1,10 @@
+key1:
+  text: "test text"
+  num: 10
+  prop:
+    key: "test key"
+    val: true
+key2:
+  text: "test text 2"
+key3:
+  text: "test text 3"

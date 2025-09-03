@@ -187,7 +187,7 @@ public class JsonStorage implements Storage {
         }
 
         ObjectNode targetRoot = (ObjectNode) objectMapper.readTree(file);
-        List<String> keysToCheck = listKeys(targetRoot); // from the start it's the root keys
+        List<String> keysToCheck = listKeys(templateRoot); // from the start it's the root keys
         int i = 0;
         while (i < keysToCheck.size()) {
             String key = keysToCheck.get(i);

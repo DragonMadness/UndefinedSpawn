@@ -1,5 +1,5 @@
 name: UndefinedSpawn
-version: '1.0'
+version: '${project.version}'
 main: com.github.dragonmadness.undefinedSpawn.UndefinedSpawn
 api-version: '1.21'
 author: DragonMadness_

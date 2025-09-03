@@ -55,12 +55,12 @@ public class PlayerCommand extends ConfiguredCommand {
     }
 
     private void spawnCommand(Player target) {
-        if (calculateHungerCost(target.getLocation(), teleportationManager.getSpawnLocation()) >= 1
-                && target.getFoodLevel() + target.getSaturation() < 2.0) {
-            respond(
-                    target,
-                    "messages.spawn.not-enough-food"
-            );
+        if ((config.getBoolean("main.teleport.hunger-cost.enabled.spawn")
+                || config.getBoolean("main.teleport.hunger-cost.enabled.back"))
+                && calculateHungerCost(target.getLocation(), teleportationManager.getSpawnLocation()) >= 1
+                && (double) target.getFoodLevel() + target.getSaturation() <
+                config.getDouble("main.teleport.hunger-cost.min-food")) {
+            respond(target, "messages.spawn.not-enough-food");
             return;
         }
 
@@ -116,33 +116,54 @@ public class PlayerCommand extends ConfiguredCommand {
             );
 
             int hungerCost = 0;
+            Location current = player.getLocation();
+            Location target;
             if (isSpawn) {
-                if (config.readOrDefault("main.teleport.hunger-cost.enabled.spawn", false)) {
-                    hungerCost = calculateHungerCost(player.getLocation(), teleportationManager.getSpawnLocation());
+                target = teleportationManager.getSpawnLocation();
+                if (config.getBoolean("main.teleport.hunger-cost.enabled.spawn")) {
+                    hungerCost = calculateHungerCost(current, target);
                 }
                 Bukkit.getScheduler().runTask(plugin, () -> teleportationManager.teleportSpawn(player));
             } else {
-                if (config.readOrDefault("main.teleport.hunger-cost.enabled.back", false)) {
-                    hungerCost = calculateHungerCost(player.getLocation(),
-                            teleportationManager.getLastTeleportation(player.getName()).getOrigin().asBukkitLocation());
+                target = teleportationManager.getLastTeleportation(player.getName()).getOrigin().asBukkitLocation();
+                if (config.getBoolean("main.teleport.hunger-cost.enabled.back")) {
+                    hungerCost = calculateHungerCost(current, target);
                 }
                 Bukkit.getScheduler().runTask(plugin, () -> teleportationManager.teleportBack(player));
             }
 
-            if (player.getGameMode() == GameMode.SURVIVAL) {
-                int saturation = (int) player.getSaturation();
-                player.setSaturation(Math.max(saturation - hungerCost, 0));
-                hungerCost = Math.max(hungerCost - saturation, 0);
-                int foodLevel = player.getFoodLevel();
-                player.setFoodLevel(Math.max(foodLevel - hungerCost, Math.min(player.getFoodLevel(), 2)));
+            if (player.getLocation().getWorld() != target.getWorld()) {
+                hungerCost *= config.readOrDefault(
+                        "main.teleport.hunger-cost.interdimensional-multiplier",
+                        0
+                );
+                if (config.isLoggingEnabled("hunger-cost")) {
+                    log.info("[HUNGER-COST] dimensional-multiplier: %s | result: %s".formatted(
+                            String.valueOf(config.readOrDefault(
+                                    "main.teleport.hunger-cost.interdimensional-multiplier", 0)),
+                            String.valueOf(hungerCost)
+                    ));
+                }
             }
 
+            if (player.getGameMode() == GameMode.SURVIVAL) {
+                int foodLevel = player.getFoodLevel();
+                int saturation = (int) player.getSaturation();
+                reportPlayerFood(player);
+                player.setSaturation(Math.max(saturation - hungerCost, 0));
+                hungerCost = Math.max(hungerCost - saturation, 0);
+                player.setFoodLevel(Math.max(foodLevel - hungerCost, Math.min(player.getFoodLevel(), 2)));
+                reportPlayerFood(player);
+            }
             teleportationTasks.remove(player);
         });
     }
 
     private int calculateHungerCost(Location origin, Location target) {
-        double distance = Math.floor(origin.distance(target));
+        double distance = Math.sqrt(
+                Math.pow(origin.getX() - target.getX(), 2)
+                + Math.pow(origin.getZ() - target.getZ(), 2)
+        );
         String relation = config.getString("main.teleport.hunger-cost.relation");
         double multiplier = config.getDouble("main.teleport.hunger-cost.multiplier");
 
@@ -158,8 +179,20 @@ public class PlayerCommand extends ConfiguredCommand {
             return 0;
         }
 
-//        log.warning("distance %s cost %s".formatted(String.valueOf(distance), String.valueOf((int) Math.floor(calc))));
+        if (config.isLoggingEnabled("hunger-cost")) {
+            log.info("[HUNGER-COST] distance: %s formula cost %s".formatted(String.valueOf(distance),
+                    String.valueOf((int) Math.floor(calc))));
+        }
 
         return (int) Math.floor(calc);
+    }
+
+    private void reportPlayerFood(Player target) {
+        if (config.isLoggingEnabled("hunger-cost")) {
+            log.info("[HUNGER-COST] resulting player-food: %s | player-saturation %s".formatted(
+                    String.valueOf(target.getFoodLevel()),
+                    String.valueOf(target.getSaturation())
+            ));
+        }
     }
 }

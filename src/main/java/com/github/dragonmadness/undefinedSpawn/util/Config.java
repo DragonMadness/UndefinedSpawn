@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
@@ -35,7 +36,6 @@ public class Config {
 
     public <T> T readOrDefault(Class<T> type, String path, T defaultValue) {
         try {
-            T out;
             if (fileStorage.getFieldType(path) == JsonNodeType.ARRAY) {
                 List<T> variants = fileStorage.readList(path, type);
                 return variants.get(ThreadLocalRandom.current().nextInt(variants.size()));
@@ -44,7 +44,7 @@ public class Config {
             }
         } catch (IOException e) {
             log.warning("Unable to read field %s from file %s".formatted(path, this.configPath));
-            e.printStackTrace();
+            Arrays.stream(e.getStackTrace()).forEach(n -> log.warning(n.toString()));
             return defaultValue;
         }
     }
@@ -63,6 +63,14 @@ public class Config {
 
     public Double getDouble(String path) {
         return readOrDefault(Double.class, path, null);
+    }
+
+    public Boolean getBoolean(String path) {
+        return readOrDefault(Boolean.class, path, false);
+    }
+
+    public boolean isLoggingEnabled(String category) {
+        return readOrDefault("logging.%s".formatted(category), false);
     }
 }
 
