@@ -96,14 +96,14 @@ public class TeleportationManager {
                 System.currentTimeMillis(),
                 SimpleLocation.of(player.getLocation())
         ));
-        player.teleport(spawnLocation);
+        safeTeleport(player, spawnLocation);
         log.info("Teleported player %s to spawn successfully".formatted(player.getName()));
         writeAsync(TELEPORTATIONS_PATH, teleportations);
     }
 
     public void teleportBack(Player player) {
         Teleportation lastTeleportation = getLastTeleportation(player.getName());
-        player.teleport(lastTeleportation.getOrigin().asBukkitLocation());
+        safeTeleport(player, lastTeleportation.getOrigin().asBukkitLocation());
         log.info("Teleported player %s back to their original spot successfully".formatted(player.getName()));
         lastTeleportation.setReturned(true);
         writeAsync(TELEPORTATIONS_PATH, teleportations);
@@ -112,5 +112,10 @@ public class TeleportationManager {
     public void updateSpawn(Location newSpawn) {
         spawnLocation = newSpawn;
         writeAsync(SPAWN_PATH, SimpleLocation.of(spawnLocation));
+    }
+
+    private void safeTeleport(Player player, Location target) {
+        player.setFallDistance(0);
+        player.teleport(target);
     }
 }
